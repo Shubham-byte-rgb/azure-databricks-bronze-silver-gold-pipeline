@@ -49,7 +49,9 @@ This stage focuses on ingesting raw data incrementally and robustly into the Bro
     ◦ Dynamic Notebooks: A single, parameterized notebook handles incremental loading for multiple tables (e.g., orders, customers, products), making the solution scalable for hundreds of tables.
 • Static Data Ingestion (No-Code Feature): For static mapping files (e.g., regions) that do not require incremental loading, Databricks' no-code "Data Ingestion" feature is used to quickly create managed Delta tables in the Bronze layer.
 • Output Format: Data in the Bronze layer is stored in Parquet format.
+
 5. Silver Layer: Data Transformation and Enrichment
+
 The Silver layer cleans, refines, and enriches data from the Bronze layer, preparing it for analytical consumption.
 • Technology: PySpark functions and Python OOP concepts (classes) are extensively used for transformations.
 • Common Transformations:
@@ -61,8 +63,11 @@ The Silver layer cleans, refines, and enriches data from the Bronze layer, prepa
 • Code Reusability (Python OOP): Python classes are created to encapsulate common transformation logic (e.g., Window class for window functions), promoting code reusability across notebooks.
 • Unity Catalog Functions: User-defined functions (UDFs) are registered within Unity Catalog using SQL or Python. These functions persist across sessions and notebooks, enhancing reusability and governance (e.g., discount_func for price calculation, upper_func for string manipulation).
 • Output Format: Data in the Silver layer is stored in Delta format, offering ACID properties, schema enforcement, and time travel capabilities.
+
 6. Gold Layer: Data Modeling (Star Schema)
+
 The Gold layer is where the Star Schema is built, comprising dimension and fact tables, optimized for analytical queries.
+
 6.1 Slowly Changing Dimension Type 1 (SCD Type 1) - Customers Dimension
 • Concept: SCD Type 1 handles changes by overwriting the existing record. No history is maintained; only the most current information is stored.
 • Implementation: Manually coded using PySpark operations.
@@ -73,8 +78,11 @@ The Gold layer is where the Star Schema is built, comprising dimension and fact 
     ◦ Record Identification: Joins the incoming data with the existing dimension table (or a pseudo-table for initial load) to identify new vs. old records.
     ◦ Metadata Columns: create_date (set on initial creation, never changed) and update_date (updated with current timestamp on every processing of the record) are added to track record lifecycle.
     ◦ Upsert Logic (MERGE): For incremental loads, the Delta MERGE statement is used to perform UPDATE for matching records (SCD Type 1 behavior) and INSERT for new records.
+    
     ◦ Output Format: Data is stored as a Delta table.
+
 6.2 Slowly Changing Dimension Type 2 (SCD Type 2) - Products Dimension
+
 • Concept: SCD Type 2 preserves the full history of changes by creating a new record for each change, along with start_at and end_at columns to denote the active period of a record.
 • Implementation: Utilizes Delta Live Tables (DLT) for automated SCD Type 2.
 • Key DLT Features:
@@ -84,6 +92,7 @@ The Gold layer is where the Star Schema is built, comprising dimension and fact 
     ◦ dlt.apply_changes API: This powerful API simplifies SCD implementation. It takes target, source, keys, sequence_by (for ordering changes), and stored_as_scd_type (set to 2 for SCD Type 2) as parameters, automating the complex logic of history tracking.
     ◦ Expectations: Data quality constraints (e.g., product_id IS NOT NULL, product_name IS NOT NULL) are applied using @dlt.expect_all_or_drop decorators. DLT can be configured to warn, drop records, or fail the pipeline upon expectation failure.
 • Cluster Management: DLT pipelines require job clusters for execution and debugging. Specific attention is paid to ensuring sufficient core quotas and terminating all-purpose clusters before running DLT jobs to avoid resource conflicts.
+
 6.3 Fact Table - Orders
 • Purpose: The fact_orders table stores transactional data, linking to dimension tables using their surrogate keys.
 • Implementation: PySpark operations, primarily joins.
@@ -93,6 +102,7 @@ The Gold layer is where the Star Schema is built, comprising dimension and fact 
     ◦ Column Selection: Only relevant measures and dimension keys are retained (e.g., order_id, dim_customer_key, dim_product_key, order_date, quantity, total_amount). Original natural keys (customer ID, product ID) are dropped after joining.
     ◦ Upsert Logic: Similar to SCD Type 1, the Delta MERGE statement is used for the fact table to handle updates and inserts based on a combination of dimension keys or a natural primary key (order_id) if available.
 • Output Format: Data is stored as a Delta table.
+
 7. Orchestration: Databricks Workflows (Jobs)
 Databricks Workflows are used to orchestrate the entire end-to-end ETL pipeline, defining task dependencies and execution order.
 • Parent Pipeline: A master workflow (End-to-End Pipeline) is created to manage all stages.
@@ -103,6 +113,7 @@ Databricks Workflows are used to orchestrate the entire end-to-end ETL pipeline,
     ◦ Gold Layer Dimensions: gold_customers (SCD Type 1) and gold_products (DLT for SCD Type 2) tasks are executed in parallel, dependent on the completion of all Silver layer notebooks.
     ◦ Gold Layer Fact Table: The fact_orders task runs last, dependent on the successful completion of both Gold layer dimension tasks.
 • Dynamic Execution: The workflow leverages parameterized notebooks and loops (for-each activity) to process multiple tables with a single notebook, enhancing scalability and maintainability.
+
 8. Data Warehousing and BI Integration
 Once the Gold layer is populated, Databricks provides tools for data warehousing and integration with BI tools.
 • Databricks SQL Warehouse: Optimized compute specifically designed for running SQL workloads. It offers serverless SQL endpoints for efficient querying of the Gold layer.
