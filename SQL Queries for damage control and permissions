@@ -1,0 +1,138 @@
+Damage control and Permissions
+/Users/shelarpradnya11_gmail.com#ext#@shelarpradnya11gmail.onmicrosoft.com
+
+//*SELECT *
+FROM `system`.`information_schema`.`external_locations`
+WHERE `external_location_name` = 'bronze_ext_location';
+
+--SELECT current_user();
+GRANT READ FILES, WRITE FILES
+ON EXTERNAL LOCATION source_ext_data
+TO `shelarpradnya11_gmail.com#ext#@shelarpradnya11gmail.onmicrosoft.com`;
+
+GRANT READ FILES, WRITE FILES
+ON SCHEMA sk_databricks_cata.bronze
+TO `account users`;
+
+GRANT READ FILES, WRITE FILES
+ON EXTERNAL LOCATION bronze_ext_location
+TO `account users`;
+
+
+
+
+
+
+GRANT USAGE, CREATE
+ON SCHEMA Catalog bronze.default
+TO `shelarpradnya11_gmail.com#ext#@shelarpradnya11gmail.onmicrosoft.com`;
+
+
+GRANT USAGE, CREATE
+ON SCHEMA bronze.default
+TO `account users`;
+
+
+
+GRANT USAGE, CREATE
+ON SCHEMA sk_databricks_cata.bronze
+TO `account users`;*//
+GRANT MODIFY, Manage
+ON TABLE sk_databricks_cata.silver.customers_silver
+TO `account users`
+-- Silver
+GRANT READ FILES, WRITE FILES
+ON EXTERNAL LOCATION silver_ext_location
+TO `account users`;
+
+-- Gold
+GRANT READ FILES, WRITE FILES
+ON EXTERNAL LOCATION gold_ext_location
+TO `account users`;
+
+
+GRANT READ FILES, WRITE FILES, CREATE EXTERNAL TABLE
+ON EXTERNAL LOCATION gold_ext_location
+TO `account users`;
+
+
+SHOW GRANTS ON EXTERNAL LOCATION Gold_ext_location;
+
+SELECT COUNT(*) FROM sk_databricks_cata.bronze.Customers;
+
+
+GRANT USAGE, CREATE
+ON SCHEMA sk_databricks_cata.Gold
+TO `account users`;
+
+GRANT USE CATALOG ON CATALOG sk_databricks_cata TO `account users`;
+
+GRANT SELECT ON TABLE sk_databricks_cata.gold.dimproducts TO `account users`;
+
+
+GRANT SELECT ON TABLE sk_databricks_cata.silver.orders_silver TO `account users`;
+
+GRANT SELECT ON TABLE sk_databricks_cata.gold.dimcustomers TO `account users`;
+
+show external locations;
+
+
+
+DROP TABLE IF EXISTS sk_databricks_cata.gold.FactOrders;
+``
+
+SELECT * FROM sk_databricks_cata.silver.customers_silver;
+GRANT SELECT ON TABLE sk_databricks_cata.silver.customers_silver TO `account users`;
+SHOW TABLES IN sk_databricks_cata.silver;
+
+GRANT SELECT,MODIFY
+ON TABLE sk_databricks_cata.silver.customers_silver
+TO `account users`;
+
+
+SELECT * 
+FROM sk_databricks_cata.silver.customers_silver;
+SHOW TABLES IN sk_databricks_ete.default;
+
+
+GRANT READ FILES, WRITE FILES, CREATE EXTERNAL TABLE
+ON EXTERNAL LOCATION silver_ext_location
+TO `account users`;
+
+GRANT SELECT, MODIFY
+ON TABLE sk_databricks_cata.gold.DimCustomers
+TO `account users`;
+
+GRANT SELECT, MODIFY
+ON TABLE sk_databricks_cata.gold.DimProducts
+TO `account users`;
+
+GRANT MANAGE on Table sk_databricks_cata.gold.dimproducts
+TO `account users`;
+
+GRANT SELECT, MODIFY
+ON TABLE sk_databricks_cata.silver.products_silver
+TO `account users`;
+
+
+GRANT SELECT,MODIFY
+ON TABLE sk_databricks_cata.silver.products_silver
+TO `account users`;
+
+
+GRANT SELECT,MODIFY
+ON TABLE sk_databricks_cata.gold.DimProducts
+TO `account users`;
+
+DROP TABLE IF EXISTS sk_databricks_cata.gold.DimProducts;
+
+select * from sk_databricks_cata.gold.DimProducts;
+select * from sk_databricks_cata.gold.factorders;
+grant select on TABLE sk_databricks_cata.gold.factorders
+TO `account users`;
+
+
+
+select * from sk_databricks_cata.gold.factorders;
+grant select on TABLE sk_databricks_cata.gold.factorders
+TO `account users`;
